@@ -16,7 +16,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 
 #include "KrzyweKarty2/KrzyweKartySettings.h"
-#include "KrzyweKarty2/AbilitySystem/Abilities/KKGameplayAbility.h"
+#include "KrzyweKarty2/AbilitySystem/Abilities/CharacterActionGameplayAbility.h"
 #include "KrzyweKarty2/Core/KKPlayerState.h"
 #include "KrzyweKarty2/Core/KKGameState.h"
 #include "KrzyweKarty2/GameBoard/KKGameBoard.h"

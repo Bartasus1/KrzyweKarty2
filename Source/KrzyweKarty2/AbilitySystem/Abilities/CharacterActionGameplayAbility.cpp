@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "KKGameplayAbility.h"
+#include "CharacterActionGameplayAbility.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -12,14 +12,14 @@
 #include "KrzyweKarty2/Core/KKPlayerState.h"
 #include "KrzyweKarty2/GameBoard/CharacterSlot.h"
 
-UKKGameplayAbility::UKKGameplayAbility(): CharacterAction(nullptr), SourceCharacter(nullptr), GameState(nullptr), GameBoard(nullptr)
+UCharacterActionGameplayAbility::UCharacterActionGameplayAbility(): CharacterAction(nullptr), SourceCharacter(nullptr), GameState(nullptr), GameBoard(nullptr)
 {
 	ReplicationPolicy = EGameplayAbilityReplicationPolicy::ReplicateYes;
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 }
 
-bool UKKGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
+bool UCharacterActionGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
 {
 	check(CharacterAction);
 	
@@ -36,7 +36,7 @@ bool UKKGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecHandle Han
 	return Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
 }
 
-void UKKGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+void UCharacterActionGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	// initialize member variables
 	SourceCharacter = Cast<AKKCharacter>(GetAvatarActorFromActorInfo());
@@ -58,7 +58,7 @@ void UKKGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 	}
 }
 
-void UKKGameplayAbility::CommitExecute(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
+void UCharacterActionGameplayAbility::CommitExecute(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
 	Super::CommitExecute(Handle, ActorInfo, ActivationInfo);
 	
@@ -69,7 +69,7 @@ void UKKGameplayAbility::CommitExecute(const FGameplayAbilitySpecHandle Handle, 
 	}
 }
 
-void UKKGameplayAbility::ExecuteCharacterAction(const UCharacterSlotStatus* SlotStatus)
+void UCharacterActionGameplayAbility::ExecuteCharacterAction(const UCharacterSlotStatus* SlotStatus)
 {
 	if(CharacterAction->QueryStruct.IsValid() && GetCurrentActorInfo()->IsNetAuthority())
 	{
@@ -78,7 +78,7 @@ void UKKGameplayAbility::ExecuteCharacterAction(const UCharacterSlotStatus* Slot
 	}
 }
 
-void UKKGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+void UCharacterActionGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
 	if(UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
 	{
@@ -95,7 +95,7 @@ void UKKGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, con
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-void UKKGameplayAbility::NotifyTargetDataReady(const FGameplayAbilityTargetDataHandle& TargetDataHandle, FGameplayTag ApplicationTag)
+void UCharacterActionGameplayAbility::NotifyTargetDataReady(const FGameplayAbilityTargetDataHandle& TargetDataHandle, FGameplayTag ApplicationTag)
 {
 	UAbilitySystemComponent* AbilitySystemComponent = GetAbilitySystemComponentFromActorInfo();
 	
@@ -111,18 +111,18 @@ void UKKGameplayAbility::NotifyTargetDataReady(const FGameplayAbilityTargetDataH
 	AbilitySystemComponent->ConsumeClientReplicatedTargetData(CurrentSpecHandle, CurrentActivationInfo.GetActivationPredictionKey());
 }
 
-void UKKGameplayAbility::ActivateServerAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
+void UCharacterActionGameplayAbility::ActivateServerAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
-	OnNotifyTargetDataReady = ASC->AbilityTargetDataSetDelegate(Handle, ActivationInfo.GetActivationPredictionKey()).AddUObject(this, &UKKGameplayAbility::NotifyTargetDataReady);
+	OnNotifyTargetDataReady = ASC->AbilityTargetDataSetDelegate(Handle, ActivationInfo.GetActivationPredictionKey()).AddUObject(this, &UCharacterActionGameplayAbility::NotifyTargetDataReady);
 }
 
-void UKKGameplayAbility::ApplyStatusToCharacterSlot_Implementation(ACharacterSlot* CharacterSlot, const UCharacterSlotStatus* SlotStatus)
+void UCharacterActionGameplayAbility::ApplyStatusToCharacterSlot_Implementation(ACharacterSlot* CharacterSlot, const UCharacterSlotStatus* SlotStatus)
 {
 	CharacterSlot->SetLocalStatus(SlotStatus);
 }
 
-void UKKGameplayAbility::ApplyStatusToCharacterSlots_Implementation(const TArray<ACharacterSlot*>& CharacterSlots, const UCharacterSlotStatus* SlotStatus)
+void UCharacterActionGameplayAbility::ApplyStatusToCharacterSlots_Implementation(const TArray<ACharacterSlot*>& CharacterSlots, const UCharacterSlotStatus* SlotStatus)
 {
 	for (ACharacterSlot* CharacterSlot : CharacterSlots)
 	{

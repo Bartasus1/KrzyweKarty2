@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 
-#include "KrzyweKarty2/AbilitySystem/Abilities/KKGameplayAbility.h"
+#include "KrzyweKarty2/AbilitySystem/Abilities/CharacterActionGameplayAbility.h"
 
 #include "UObject/Object.h"
 #include "CharacterAssetsCreationTool.generated.h"

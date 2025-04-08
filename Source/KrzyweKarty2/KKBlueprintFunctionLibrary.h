@@ -26,13 +26,13 @@ class KRZYWEKARTY2_API UKKBlueprintFunctionLibrary : public UBlueprintFunctionLi
 	GENERATED_BODY()
 public:
 
-	UFUNCTION(BlueprintCallable)
-	static FText GetFractionNameByTag(const FGameplayTag& FractionTag);
+	// UFUNCTION(BlueprintCallable)
+	// static FText GetFractionNameByTag(const FGameplayTag& FractionTag);
 
 	UFUNCTION(BlueprintCallable, meta=(WorldContext="WorldContextObject"))
 	static AKKGameBoard* GetGameBoard(const UObject* WorldContextObject);
 
-	static TArray<ACharacterSlot*> QueryCharacterSlots(const AKKCharacter* Character, const FInstancedStruct& GameBoardQuery);
+	static TArray<ACharacterSlot*> QueryCharacterSlots(const AKKCharacter* Character, const TInstancedStruct<FGameBoardQuery>& GameBoardQuery);
 	static TArray<ACharacterSlot*> QueryCharacterSlots(const AKKCharacter* Character, const FGameBoardQuery* GameBoardQuery);
 	//TODO make a custom K2_Node for BP Query function that will take FGameboardQuery derived structs as input
 };

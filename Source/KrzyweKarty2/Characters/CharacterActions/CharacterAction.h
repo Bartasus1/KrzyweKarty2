@@ -26,14 +26,14 @@ public:
 	{
 	}
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	uint8 ActionWeight = 0;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool bRequireCharacterOnGameBoard = true;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (BaseStruct = "GameBoardQuery"))
-	FInstancedStruct QueryStruct;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TInstancedStruct<FGameBoardQuery> QueryStruct;
 
 	virtual bool CanExecuteAction(const AKKCharacter* Character, const AKKGameBoard* GameBoard) const;
 };
@@ -49,7 +49,7 @@ public:
 	{
 		ActionWeight = 1;
 		bRequireCharacterOnGameBoard = false;
-		QueryStruct = FInstancedStruct::Make(FGameBoardQuery_Summon());
+		QueryStruct.InitializeAs<FGameBoardQuery_Summon>();
 	}
 };
 
@@ -64,7 +64,7 @@ public:
 	{
 		ActionWeight = 2;
 		bRequireCharacterOnGameBoard = true;
-		QueryStruct = FInstancedStruct::Make(FGameBoardQuery_Movement());
+		QueryStruct.InitializeAs<FGameBoardQuery_Movement>();
 	}
 };
 
@@ -79,7 +79,7 @@ public:
 	{
 		ActionWeight = 3;
 		bRequireCharacterOnGameBoard = true;
-		QueryStruct = FInstancedStruct::Make(FGameBoardQuery_Attack());
+		QueryStruct.InitializeAs<FGameBoardQuery_Attack>();
 	}
 };
 

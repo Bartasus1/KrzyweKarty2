@@ -10,12 +10,12 @@
 
 #include "GameBoard/GameBoardQueries/GameBoardQuery.h"
 
-FText UKKBlueprintFunctionLibrary::GetFractionNameByTag(const FGameplayTag& FractionTag)
-{
-	const UKrzyweKartySettings* DeveloperSettings = UKrzyweKartySettings::Get();
-
-	return DeveloperSettings->FractionTagToNameMap.FindRef(FractionTag);
-}
+// FText UKKBlueprintFunctionLibrary::GetFractionNameByTag(const FGameplayTag& FractionTag)
+// {
+// 	const UKrzyweKartySettings* DeveloperSettings = UKrzyweKartySettings::Get();
+//
+// 	return DeveloperSettings->FractionTagToNameMap.FindRef(FractionTag);
+// }
 
 AKKGameBoard* UKKBlueprintFunctionLibrary::GetGameBoard(const UObject* WorldContextObject)
 {
@@ -23,7 +23,7 @@ AKKGameBoard* UKKBlueprintFunctionLibrary::GetGameBoard(const UObject* WorldCont
 	return GameState->GetGameBoard();
 }
 
-TArray<ACharacterSlot*> UKKBlueprintFunctionLibrary::QueryCharacterSlots(const AKKCharacter* Character, const FInstancedStruct& GameBoardQuery)
+TArray<ACharacterSlot*> UKKBlueprintFunctionLibrary::QueryCharacterSlots(const AKKCharacter* Character, const TInstancedStruct<FGameBoardQuery>& GameBoardQuery)
 {
 	const FGameBoardQuery* GameBoardQueryPtr = GameBoardQuery.GetPtr<FGameBoardQuery>();
 	check(GameBoardQueryPtr);

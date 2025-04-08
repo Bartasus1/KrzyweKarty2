@@ -34,7 +34,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<UGameplayAbility> CharacterAbilityClass;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(TitleProperty="{AbilityName}  ( {AbilityCost} PM )  --> {AbilityDescription}"), Category="Abilities")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(TitleProperty="{AbilityName} --> {AbilityDescription}"), Category="Abilities")
 	TArray<FAbilityDescription> ActiveAbilities;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(TitleProperty="{AbilityName} --> {AbilityDescription}"), Category="Abilities")

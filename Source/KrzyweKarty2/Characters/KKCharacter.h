@@ -21,7 +21,7 @@ struct FGameplayEffectCustomExecutionOutput;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FAbilityAction);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterDeath);
 
-UCLASS()
+UCLASS(Abstract, Blueprintable, BlueprintType)
 class KRZYWEKARTY2_API AKKCharacter : public AActor, public IAbilitySystemInterface
 {
 	GENERATED_BODY()

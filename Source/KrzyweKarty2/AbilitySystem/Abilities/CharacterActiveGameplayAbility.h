@@ -3,18 +3,18 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "KKGameplayAbility.h"
-#include "KKCharacterGameplayAbility.generated.h"
+#include "CharacterActionGameplayAbility.h"
+#include "CharacterActiveGameplayAbility.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class KRZYWEKARTY2_API UKKCharacterGameplayAbility : public UKKGameplayAbility // class to use for character abilities
+class KRZYWEKARTY2_API UCharacterActiveGameplayAbility : public UCharacterActionGameplayAbility // class to use for unique (activatable) character abilities
 {
 	GENERATED_BODY()
 public:
-	UKKCharacterGameplayAbility();
+	UCharacterActiveGameplayAbility();
 
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const override;
 

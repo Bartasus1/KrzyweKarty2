@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
-class UKKGameplayAbility;
+class UCharacterActionGameplayAbility;
 class UCharacterDataAsset;
 class IAssetTypeActions;
 class FAssetTypeActions_Base;

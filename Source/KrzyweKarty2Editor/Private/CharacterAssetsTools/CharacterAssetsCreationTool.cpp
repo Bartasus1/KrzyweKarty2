@@ -14,7 +14,7 @@
 
 #include "Kismet2/KismetEditorUtilities.h"
 
-#include "KrzyweKarty2/AbilitySystem/Abilities/KKCharacterGameplayAbility.h"
+#include "KrzyweKarty2/AbilitySystem/Abilities/CharacterActiveGameplayAbility.h"
 #include "KrzyweKarty2/Characters/CharacterDataAsset.h"
 #include "KrzyweKarty2/Characters/KKCharacter.h"
 
@@ -101,7 +101,7 @@ UGameplayAbilityBlueprint* FCharacterAssetsCreationTool::CreateCharacterAbility(
 	
 	UGameplayAbilitiesBlueprintFactory* GameplayAbilitiesBlueprintFactory = NewObject<UGameplayAbilitiesBlueprintFactory>();
 	GameplayAbilitiesBlueprintFactory->BlueprintType = BPTYPE_Normal;
-	GameplayAbilitiesBlueprintFactory->ParentClass = UKKCharacterGameplayAbility::StaticClass();
+	GameplayAbilitiesBlueprintFactory->ParentClass = UCharacterActiveGameplayAbility::StaticClass();
 	
 	return CreateAsset<UGameplayAbilityBlueprint>(AssetPath, UGameplayAbilityBlueprint::StaticClass(), GameplayAbilitiesBlueprintFactory);
 }

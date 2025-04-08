@@ -7,7 +7,7 @@
 
 #include "KrzyweKarty2/GameBoard/CharacterSlot.h"
 
-#include "KKGameplayAbility.generated.h"
+#include "CharacterActionGameplayAbility.generated.h"
 
 class UCharacterAction;
 class UCharacterSlotStatus;
@@ -19,13 +19,13 @@ class AKKCharacter;
  * 
  */
 UCLASS()
-class KRZYWEKARTY2_API UKKGameplayAbility : public UGameplayAbility
+class KRZYWEKARTY2_API UCharacterActionGameplayAbility : public UGameplayAbility // basic character abilities - movement, attack, etc.
 {
 	GENERATED_BODY()
 
 public:
 
-	UKKGameplayAbility();
+	UCharacterActionGameplayAbility();
 	
 	UPROPERTY(EditDefaultsOnly, Instanced)
 	UCharacterAction* CharacterAction;
@@ -62,7 +62,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	virtual void ExecuteCharacterAction(const UCharacterSlotStatus* SlotStatus);
+	
 protected:
+	
 	UPROPERTY(BlueprintReadOnly)
 	AKKCharacter* SourceCharacter;
 
