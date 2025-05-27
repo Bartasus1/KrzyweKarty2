@@ -40,7 +40,8 @@ public:
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
-protected:
+	void InitializeAbilitySystemComponent();
+	
 	// --------------------------------------------------------
 	// CHARACTER DATA
 	// --------------------------------------------------------
@@ -147,7 +148,7 @@ private:
 	// ----------------------------------------------------
 	const FVector2D DrawSize = {512,700};
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UCharacterWidget> CharacterWidget;
 
 	UFUNCTION(BlueprintCallable)

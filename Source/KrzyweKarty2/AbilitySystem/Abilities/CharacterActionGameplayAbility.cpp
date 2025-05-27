@@ -2,9 +2,6 @@
 
 
 #include "CharacterActionGameplayAbility.h"
-
-#include "Kismet/KismetSystemLibrary.h"
-
 #include "KrzyweKarty2/KKBlueprintFunctionLibrary.h"
 #include "KrzyweKarty2/Characters/KKCharacter.h"
 #include "KrzyweKarty2/Characters/CharacterActions/CharacterAction.h"
@@ -25,9 +22,7 @@ bool UCharacterActionGameplayAbility::CanActivateAbility(const FGameplayAbilityS
 	
 	if(const AKKCharacter* Character = Cast<AKKCharacter>(ActorInfo->AvatarActor.Get()))
 	{
-		const AKKGameBoard* WorldGameBoard = UKKBlueprintFunctionLibrary::GetGameBoard(Character);
-		
-		if(!Character->PlayerState->bIsMyTurn || !CharacterAction->CanExecuteAction(Character, WorldGameBoard))
+		if(!Character->PlayerState->bIsMyTurn || !CharacterAction->CanExecuteAction(Character))
 		{
 			return false;
 		}
@@ -53,7 +48,7 @@ void UCharacterActionGameplayAbility::ActivateAbility(const FGameplayAbilitySpec
 	if(ActorInfo->IsNetAuthority())
 	{
 		ActivateServerAbility(Handle, ActorInfo, ActivationInfo);
-		
+		ExecuteCharacterAction();
 		K2_ActivateServerAbility();
 	}
 }
@@ -69,12 +64,12 @@ void UCharacterActionGameplayAbility::CommitExecute(const FGameplayAbilitySpecHa
 	}
 }
 
-void UCharacterActionGameplayAbility::ExecuteCharacterAction(const UCharacterSlotStatus* SlotStatus)
+void UCharacterActionGameplayAbility::ExecuteCharacterAction()
 {
 	if(CharacterAction->QueryStruct.IsValid() && GetCurrentActorInfo()->IsNetAuthority())
 	{
-		ActionSlots = UKKBlueprintFunctionLibrary::QueryCharacterSlots(SourceCharacter, CharacterAction->QueryStruct);
-		ApplyStatusToCharacterSlots(ActionSlots, SlotStatus);
+		ActionSlots = CharacterAction->GetBoardQueryResults(SourceCharacter);
+		ApplyStatusToCharacterSlots(ActionSlots, CharacterAction->ActionStatus);
 	}
 }
 
@@ -115,11 +110,6 @@ void UCharacterActionGameplayAbility::ActivateServerAbility(const FGameplayAbili
 {
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
 	OnNotifyTargetDataReady = ASC->AbilityTargetDataSetDelegate(Handle, ActivationInfo.GetActivationPredictionKey()).AddUObject(this, &UCharacterActionGameplayAbility::NotifyTargetDataReady);
-}
-
-void UCharacterActionGameplayAbility::ApplyStatusToCharacterSlot_Implementation(ACharacterSlot* CharacterSlot, const UCharacterSlotStatus* SlotStatus)
-{
-	CharacterSlot->SetLocalStatus(SlotStatus);
 }
 
 void UCharacterActionGameplayAbility::ApplyStatusToCharacterSlots_Implementation(const TArray<ACharacterSlot*>& CharacterSlots, const UCharacterSlotStatus* SlotStatus)

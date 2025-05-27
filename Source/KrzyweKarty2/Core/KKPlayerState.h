@@ -28,10 +28,7 @@ public:
 	bool bIsMyTurn = false;
 
 	void SetPlayerFraction(const FFractionCharacters& InFractionCharacters);
-
-
-
-
+	
 	const TArray<AKKCharacter*>& GetPlayableCharacters() const;
 protected:
 

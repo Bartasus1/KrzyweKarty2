@@ -2,6 +2,7 @@
 
 
 #include "AttackSequence.h"
+#include "AbilitySystemGlobals.h"
 #include "AttackComponent.h"
 #include "ControlFlow.h"
 #include "ControlFlowManager.h"
@@ -24,12 +25,12 @@ void UAttackSequence::BeginAttack()
 	AssembleAttackPipeline(GetVictim());
 
 	FControlFlow& Flow = FControlFlowStatics::Create(this, "AttackFlow")
-		.QueueStep("PreAttack", this, &ThisClass::ExecuteAttackStage, EAttackStage::PreAttack)
-		.QueueStep("InitDamage", this, &ThisClass::ModifyDamage, NULL, EGameplayModOp::Max)
-		.QueueStep("Before", this, &ThisClass::ExecuteAttackStage, EAttackStage::Before)
-		.QueueStep("ExecuteDamage", this, &ThisClass::ExecuteDamage)
-		.QueueStep("After", this, &ThisClass::ExecuteAttackStage, EAttackStage::After)
-		.QueueStep("CheckVictimDeath", this, &ThisClass::CheckVictimDeath);
+		.QueueStep("PreAttack",		this, 	&UAttackSequence::ExecuteAttackStage, EAttackStage::PreAttack)
+		.QueueStep("InitDamage",		this,	&UAttackSequence::InitDamage)
+		.QueueStep("Before",			this,	&UAttackSequence::ExecuteAttackStage, EAttackStage::Before)
+		.QueueStep("ExecuteDamage",	this, 	&UAttackSequence::ExecuteDamage)
+		.QueueStep("After",			this, 	&UAttackSequence::ExecuteAttackStage, EAttackStage::After)
+		.QueueStep("CheckDeath",		this, 	&UAttackSequence::CheckVictimDeath);
 
 	AttackFlow = Flow.AsShared();
 	AttackFlow->ExecuteFlow();
@@ -56,43 +57,8 @@ void UAttackSequence::ModifyDamage(int32 InDamage, EGameplayModOp::Type Modifica
 	case EGameplayModOp::Division:
 		Damage /= InDamage;
 		break;
-	case EGameplayModOp::Max:
-		if(Damage == -1)
-		{
-			Damage = GetAttacker()->GetStrength(); // damage initialization, only if it was not set before
-		}
-		break;
 	default:
 		break;
-	}
-}
-
-void UAttackSequence::ExecuteAttackStage(EAttackStage Stage)
-{
-	for (const UAttackComponent* AttackComponent : AttackPipeline[Stage])
-	{
-		AttackComponent->AttackStageExecution.Broadcast(this);
-	}
-}
-
-void UAttackSequence::ExecuteDamage()
-{
-	const float Level = AttackContext.AbilityIndex.Get(0);
-	const UGameplayEffect* AttackGameplayEffect = UKrzyweKartySettings::GetAttackGameplayEffect();
-	UAbilitySystemComponent* AbilitySystemComponent = GetAttacker()->GetAbilitySystemComponent();
-	
-	FGameplayEffectSpec Spec = FGameplayEffectSpec(AttackGameplayEffect, AbilitySystemComponent->MakeEffectContext(), Level);
-	Spec.SetSetByCallerMagnitude("Damage", Damage);
-	
-	AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(Spec, GetVictim()->GetAbilitySystemComponent());
-}
-
-void UAttackSequence::CheckVictimDeath()
-{
-	if(AKKCharacter* Character = GetVictim(); Character->GetHealth() <= 0)
-	{
-		Character->OnCharacterDeath.Broadcast();
-		Character->Destroy();
 	}
 }
 
@@ -108,6 +74,61 @@ void UAttackSequence::AssembleAttackPipeline(const AKKCharacter* Character)
 	});
 }
 
+void UAttackSequence::ExecuteAttackStage(EAttackStage Stage)
+{
+	for (const UAttackComponent* AttackComponent : AttackPipeline[Stage])
+	{
+		AttackComponent->AttackStageExecution.Broadcast(this);
+	}
+}
+
+void UAttackSequence::InitDamage()
+{
+	if(Damage == -1)
+	{
+		ModifyDamage(GetAttacker()->GetStrength(), EGameplayModOp::Override);
+	}
+}
+
+void UAttackSequence::ExecuteDamage()
+{
+	const float Level = AttackContext.AbilityIndex.Get(0);
+	const UGameplayEffect* AttackGameplayEffect = UKrzyweKartySettings::GetAttackGameplayEffect();
+	UAbilitySystemComponent* AbilitySystemComponent = GetAttacker()->GetAbilitySystemComponent();
+
+	FGameplayEffectSpec Spec = FGameplayEffectSpec(AttackGameplayEffect, AbilitySystemComponent->MakeEffectContext(), Level);
+	Spec.SetSetByCallerMagnitude("Damage", Damage);
+
+	AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(Spec, GetVictim()->GetAbilitySystemComponent());
+}
+
+void UAttackSequence::CheckVictimDeath()
+{
+	if(AKKCharacter* Character = GetVictim(); Character->GetHealth() <= 0)
+	{
+		Character->OnCharacterDeath.Broadcast();
+		Character->Destroy();
+	}
+}
+
+
+UAttackSequence* UAttackSequence::BeginDefaultAttackSequence(UObject* WorldContextObject, const AKKCharacter* Attacker, const AKKCharacter* Victim)
+{
+	check(0);
+	return nullptr;
+}
+
+UAttackSequence* UAttackSequence::BeginAbilityAttackSequence(UObject* WorldContextObject, const AKKCharacter* Attacker, const AKKCharacter* Victim, int32 InAbilityIndex, int32 InDamage)
+{
+	check(0);
+	return nullptr;
+}
+
+UAttackSequence* UAttackSequence::BeginPreviewAttackSequence(UObject* WorldContextObject, const AKKCharacter* Attacker, const AKKCharacter* Victim, EAttackType AttackType, int32 InAbilityIndex, int32 InDamage)
+{
+	check(0);
+	return nullptr;
+}
 
 DEFINE_FUNCTION(UAttackSequence::execBeginDefaultAttackSequence)
 {
@@ -146,4 +167,45 @@ DEFINE_FUNCTION(UAttackSequence::execBeginAbilityAttackSequence)
 
 	*static_cast<UAttackSequence**>(RESULT_PARAM) = AttackSequence;
 	P_NATIVE_END;
+}
+
+DEFINE_FUNCTION(UAttackSequence::execBeginPreviewAttackSequence)
+{
+	P_GET_OBJECT(UObject, WorldContextObject);
+	P_GET_OBJECT(AKKCharacter, Attacker);
+	P_GET_OBJECT(AKKCharacter, Victim);
+	PARAM_PASSED_BY_VAL(AttackType, FEnumProperty, EAttackType);
+	PARAM_PASSED_BY_VAL(InAbilityIndex, FIntProperty, int32);
+	PARAM_PASSED_BY_VAL(InDamage, FIntProperty, int32);
+	P_FINISH;
+	
+	P_NATIVE_BEGIN;
+	
+	// Create copies of the attacker and victim to avoid modifying the original objects
+	AKKCharacter* AttackerCopy = CreateCharacterCopy(Attacker, WorldContextObject);
+	AKKCharacter* VictimCopy = CreateCharacterCopy(Victim, WorldContextObject);
+
+	
+	const FAttackContext AttackContext = FAttackContext(AttackerCopy, VictimCopy, AttackType, InAbilityIndex);
+	
+	UAttackSequence* AttackSequence = NewObject<UAttackSequence>(WorldContextObject);
+	AttackSequence->AttackContext = AttackContext;
+	AttackSequence->Damage = InDamage;
+	AttackSequence->BeginAttack();
+
+	*static_cast<UAttackSequence**>(RESULT_PARAM) = AttackSequence;
+	P_NATIVE_END;
+}
+
+AKKCharacter* UAttackSequence::CreateCharacterCopy(const AKKCharacter* Character, UObject* WorldContextObject)
+{
+	AKKCharacter* CharacterCopy = DuplicateObject(Character, WorldContextObject);
+	UKKAttributeSet* AttributeSetCopy = DuplicateObject(Character->AttributeSet, WorldContextObject);
+	
+	CharacterCopy->AbilitySystemComponent->RegisterComponent();
+	CharacterCopy->AttributeSet = AttributeSetCopy;
+	CharacterCopy->AbilitySystemComponent->AddSpawnedAttribute(AttributeSetCopy);
+	CharacterCopy->InitializeAbilitySystemComponent();
+
+	return CharacterCopy;
 }

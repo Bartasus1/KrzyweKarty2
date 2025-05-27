@@ -9,7 +9,7 @@ UKKAttributeSet::UKKAttributeSet(): MaxCharacterStats(nullptr)
 {
 }
 
-void UKKAttributeSet::InitFromCharacterStatistics(const FCharacterStats& CharacterStats)
+UKKAttributeSet* UKKAttributeSet::InitFromCharacterStatistics(const FCharacterStats& CharacterStats)
 {
 	MaxCharacterStats = &CharacterStats;
 
@@ -22,6 +22,8 @@ void UKKAttributeSet::InitFromCharacterStatistics(const FCharacterStats& Charact
 	AttributeToMaxStatMap.Add(GetManaAttribute(), MaxCharacterStats->Mana);
 	AttributeToMaxStatMap.Add(GetDefenceAttribute(), MaxCharacterStats->Defence);
 	AttributeToMaxStatMap.Add(GetStrengthAttribute(), MaxCharacterStats->Strength);
+
+	return this;
 }
 
 int32 UKKAttributeSet::GetMaxValueForAttribute(const FGameplayAttribute& GameplayAttribute) const
@@ -37,6 +39,11 @@ int32 UKKAttributeSet::GetMaxValueForAttribute(const FGameplayAttribute& Gamepla
 void UKKAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
 	Super::PreAttributeChange(Attribute, NewValue);
+
+	if(!MaxCharacterStats)
+	{
+		return;
+	}
 
 	if (Attribute == GetHealthAttribute())
 	{

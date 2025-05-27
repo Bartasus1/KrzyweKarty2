@@ -3,13 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "InstancedStruct.h"
-
-#include "KrzyweKarty2/GameBoard/GameBoardQueries/GameBoardQuery.h"
-
 #include "UObject/Object.h"
+#include "InstancedStruct.h"
+#include "KrzyweKarty2/GameBoard/GameBoardQueries/GameBoardQuery.h"
 #include "CharacterAction.generated.h"
 
+class UCharacterSlotStatus;
 class AKKGameBoard;
 class AKKCharacter;
 /**
@@ -35,7 +34,11 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TInstancedStruct<FGameBoardQuery> QueryStruct;
 
-	virtual bool CanExecuteAction(const AKKCharacter* Character, const AKKGameBoard* GameBoard) const;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UCharacterSlotStatus> ActionStatus = nullptr;
+
+	virtual bool CanExecuteAction(const AKKCharacter* Character) const;
+	virtual TArray<ACharacterSlot*> GetBoardQueryResults(const AKKCharacter* Character) const;
 };
 
 UCLASS()
@@ -97,5 +100,6 @@ public:
 		// don't initialize QueryStruct to make it invalid
 	}
 
-	virtual bool CanExecuteAction(const AKKCharacter* Character, const AKKGameBoard* GameBoard) const override; // checks if ANY ability can be executed
+	// can ANY ability be executed
+	virtual bool CanExecuteAction(const AKKCharacter* Character) const override;
 };

@@ -5,7 +5,9 @@
 #include "KrzyweKarty2/KKBlueprintFunctionLibrary.h"
 #include "KrzyweKarty2/Characters/KKCharacter.h"
 
-bool UCharacterAction::CanExecuteAction(const AKKCharacter* Character, const AKKGameBoard* GameBoard) const
+
+
+bool UCharacterAction::CanExecuteAction(const AKKCharacter* Character) const
 {
 	if(Character->CharacterActions >= ActionWeight || (bRequireCharacterOnGameBoard && !Character->IsCharacterOnTheBoard()))
 	{
@@ -14,16 +16,24 @@ bool UCharacterAction::CanExecuteAction(const AKKCharacter* Character, const AKK
 
 	if(QueryStruct.IsValid())
 	{
-		const bool bNoValidSlots = UKKBlueprintFunctionLibrary::QueryCharacterSlots(Character, QueryStruct).IsEmpty();
+		const bool bNoValidSlots = GetBoardQueryResults(Character).IsEmpty();
 		return !bNoValidSlots; // can't execute if there are no valid slots
 	}
 
 	return true;
 }
 
-bool UCharacterAction_Ability::CanExecuteAction(const AKKCharacter* Character, const AKKGameBoard* GameBoard) const
+TArray<ACharacterSlot*> UCharacterAction::GetBoardQueryResults(const AKKCharacter* Character) const
 {
-	if(!Super::CanExecuteAction(Character, GameBoard))
+	return UKKBlueprintFunctionLibrary::QueryCharacterSlots(Character, QueryStruct);
+}
+
+
+///////// ABILITY ACTIONS //////////
+
+bool UCharacterAction_Ability::CanExecuteAction(const AKKCharacter* Character) const
+{
+	if(!Super::CanExecuteAction(Character))
 	{
 		return false;
 	}

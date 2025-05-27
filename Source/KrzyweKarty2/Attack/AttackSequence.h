@@ -21,55 +21,50 @@ class KRZYWEKARTY2_API UAttackSequence : public UObject
 
 public:
 	UAttackSequence();
-private:
-	
-	void BeginAttack();
 
-public:
-	
 	UFUNCTION(BlueprintCallable)
 	void StopExecution();
 
 	UFUNCTION(BlueprintCallable)
 	void ModifyDamage(int32 InDamage, EGameplayModOp::Type ModificationType = EGameplayModOp::Override);
 
-private:
-	
+protected:
+	void BeginAttack();
+
 	FAttackContext AttackContext;
 	int32 Damage = -1; // option to specify damage at the beginning of an attack (other than attacker's strength - useful in abilities)
 
 public:
-
 	UFUNCTION(BlueprintCallable, CustomThunk, meta = (WorldContext = "WorldContextObject"))
 	static UAttackSequence* BeginDefaultAttackSequence(UObject* WorldContextObject, const AKKCharacter* Attacker, const AKKCharacter* Victim);
 
 	UFUNCTION(BlueprintCallable, CustomThunk, meta = (WorldContext = "WorldContextObject"))
 	static UAttackSequence* BeginAbilityAttackSequence(UObject* WorldContextObject, const AKKCharacter* Attacker, const AKKCharacter* Victim, int32 InAbilityIndex = 0, int32 InDamage = -1);
 
-private:
+	UFUNCTION(BlueprintCallable, CustomThunk, meta = (WorldContext = "WorldContextObject"))
+	static UAttackSequence* BeginPreviewAttackSequence(UObject* WorldContextObject, const AKKCharacter* Attacker, const AKKCharacter* Victim, EAttackType AttackType = EAttackType::DefaultAttack, int32 InAbilityIndex = 0, int32 InDamage = -1);
 
+private:
 	DECLARE_FUNCTION(execBeginDefaultAttackSequence);
 	DECLARE_FUNCTION(execBeginAbilityAttackSequence);
-	
+	DECLARE_FUNCTION(execBeginPreviewAttackSequence);
+
 protected:
-	
+	void AssembleAttackPipeline(const AKKCharacter* Character);
 	void ExecuteAttackStage(EAttackStage Stage);
+	
+	void InitDamage();
 	void ExecuteDamage();
 	void CheckVictimDeath();
 
-	void AssembleAttackPipeline(const AKKCharacter* Character);
-
 private:
-	
 	TMap<EAttackStage, TArray<UAttackComponent*>> AttackPipeline;
-
 	TSharedPtr<FControlFlow> AttackFlow;
-	
+
 public:
-	
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE AKKCharacter* GetAttacker() const { return AttackContext.Attacker; }
-	
+
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE AKKCharacter* GetVictim() const { return AttackContext.Victim; }
 
@@ -81,4 +76,7 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE TOptional<uint8> GetAbilityIndex() const { return AttackContext.AbilityIndex; }
+
+private:
+	static AKKCharacter* CreateCharacterCopy(const AKKCharacter* Character, UObject* WorldContextObject);
 };

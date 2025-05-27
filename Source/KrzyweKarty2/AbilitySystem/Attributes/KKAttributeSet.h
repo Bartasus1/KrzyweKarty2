@@ -25,7 +25,7 @@ public:
 
 	UKKAttributeSet();
 
-	void InitFromCharacterStatistics(const FCharacterStats& CharacterStats);
+	UKKAttributeSet* InitFromCharacterStatistics(const FCharacterStats& CharacterStats);
 
 	int32 GetMaxValueForAttribute(const FGameplayAttribute& GameplayAttribute) const;
 

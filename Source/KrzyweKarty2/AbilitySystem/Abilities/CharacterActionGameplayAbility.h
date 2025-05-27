@@ -37,9 +37,9 @@ public:
 
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
-
+protected:
 	//Inspired by Xist XCL_ClientServerAbility (https://www.youtube.com/watch?v=VvkIuUnk05M)
-	
+
 	UFUNCTION(BlueprintImplementableEvent, DisplayName="Activate Local Player Ability")
 	void K2_ActivateLocalPlayerAbility();
 
@@ -55,13 +55,11 @@ public:
 	virtual void ActivateServerAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo);
 
 	UFUNCTION(Client, Reliable, BlueprintCallable)
-	virtual void ApplyStatusToCharacterSlot(ACharacterSlot* CharacterSlot, const UCharacterSlotStatus* SlotStatus);
-
-	UFUNCTION(Client, Reliable, BlueprintCallable)
 	virtual void ApplyStatusToCharacterSlots(const TArray<ACharacterSlot*>& CharacterSlots, const UCharacterSlotStatus* SlotStatus);
 
-	UFUNCTION(BlueprintCallable)
-	virtual void ExecuteCharacterAction(const UCharacterSlotStatus* SlotStatus);
+private:
+	
+	virtual void ExecuteCharacterAction();
 	
 protected:
 	

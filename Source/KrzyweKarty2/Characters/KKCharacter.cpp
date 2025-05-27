@@ -13,8 +13,6 @@
 
 #include "Engine/TextureRenderTarget2D.h"
 
-#include "Kismet/KismetSystemLibrary.h"
-
 #include "KrzyweKarty2/KrzyweKartySettings.h"
 #include "KrzyweKarty2/AbilitySystem/Abilities/CharacterActionGameplayAbility.h"
 #include "KrzyweKarty2/Core/KKPlayerState.h"
@@ -45,6 +43,14 @@ AKKCharacter::AKKCharacter()
 UAbilitySystemComponent* AKKCharacter::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
+}
+
+void AKKCharacter::InitializeAbilitySystemComponent()
+{
+	if(PlayerState)
+	{
+		GetAbilitySystemComponent()->InitAbilityActorInfo(PlayerState, this);
+	}
 }
 
 void AKKCharacter::TryActivateCharacterAbility_Implementation(uint8 AbilityIndex)
@@ -85,19 +91,16 @@ void AKKCharacter::BeginPlay()
 
 	check(CharacterDataAsset); // all characters should have valid DataAsset at BeginPlay
 
-	AttributeSet->InitFromCharacterStatistics(CharacterDataAsset->CharacterStats);
-	GetAbilitySystemComponent()->AddSpawnedAttribute(AttributeSet);
+	GetAbilitySystemComponent()->AddSpawnedAttribute(AttributeSet->InitFromCharacterStatistics(CharacterDataAsset->CharacterStats));
 
 	UClass* WidgetClass = UKrzyweKartySettings::Get()->CardWidgetClass.LoadSynchronous();
 	CharacterWidget = CreateWidget<UCharacterWidget>(GetWorld(), WidgetClass);
 	if(CharacterWidget != nullptr)
 	{
 		CharacterWidget->SetCharacter(this);
+		UpdateCharacterWidgetRender();
 	}
-
-
-	UpdateCharacterWidgetRender();
-
+	
 	if(AKKGameState* GameState = GetWorld()->GetGameState<AKKGameState>())
 	{
 		GameState->RegisterCharacter(this);
@@ -111,7 +114,7 @@ void AKKCharacter::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	UpdateCharacterWidgetRender(DeltaSeconds);
-	RotateToLocalPlayer(); // this shouldn't be on a tick, but weird bug makes character rotate 180 on client, when added to the game board 
+	RotateToLocalPlayer(); // this shouldn't be on a tick, but a weird bug makes character rotate 180 on client, when added to the game board 
 }
 
 void AKKCharacter::OnConstruction(const FTransform& Transform)
@@ -200,7 +203,7 @@ void AKKCharacter::CancelAllAbilities()
 bool AKKCharacter::CanExecuteAction(const TSubclassOf<UCharacterAction> ActionClass) const
 {
 	const UCharacterAction* CharacterAction = ActionClass->GetDefaultObject<UCharacterAction>();
-	return CharacterAction->CanExecuteAction(this, GetGameBoard());
+	return CharacterAction->CanExecuteAction(this);
 }
 
 bool AKKCharacter::CanCharacterBeUsed() const
@@ -238,7 +241,7 @@ void AKKCharacter::RotateToLocalPlayer()
 // ABILITY SYSTEM COMPONENT INITIALIZATION //
 void AKKCharacter::OnRep_PlayerState() // Client
 {
-	GetAbilitySystemComponent()->InitAbilityActorInfo(PlayerState, this);
+	InitializeAbilitySystemComponent();
 	
 	if(CharacterWidget) // update widget
 	{
@@ -249,7 +252,7 @@ void AKKCharacter::OnRep_PlayerState() // Client
 void AKKCharacter::SetPlayerState(AKKPlayerState* NewPlayerState) // Server
 {
 	PlayerState = NewPlayerState;
-	GetAbilitySystemComponent()->InitAbilityActorInfo(PlayerState, this);
+	InitializeAbilitySystemComponent();
 
 	if(CharacterDataAsset->CharacterAbilityClass)
 	{
