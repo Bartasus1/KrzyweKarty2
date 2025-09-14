@@ -13,7 +13,7 @@ UAttackSequence::UAttackSequence(): AttackContext()
 {
 	for (EAttackStage AttackStage : TEnumRange<EAttackStage>())
 	{
-		AttackPipeline.Add(AttackStage, TArray<UAttackComponent*>());
+		AttackPipeline.Add(AttackStage, FAttackComponents());
 	}
 }
 
@@ -72,14 +72,14 @@ void UAttackSequence::AssembleAttackPipeline(const AKKCharacter* Character)
 		if(AttackContext.DoesCharacterMatchRole(Character, AttackComponent->AttackRole) &&
 			AttackComponent->MatchesAttackType(AttackContext.AttackType, AttackContext.AbilityIndex))
 		{
-			AttackPipeline[AttackComponent->AttackStage].Add(AttackComponent);
+			AttackPipeline[AttackComponent->AttackStage].AttackComponents.Add(AttackComponent);
 		}
 	});
 }
 
 void UAttackSequence::ExecuteAttackStage(EAttackStage Stage)
 {
-	for (const UAttackComponent* AttackComponent : AttackPipeline[Stage])
+	for (const UAttackComponent* AttackComponent : AttackPipeline[Stage].AttackComponents)
 	{
 		AttackComponent->AttackStageExecution.Broadcast(this);
 	}

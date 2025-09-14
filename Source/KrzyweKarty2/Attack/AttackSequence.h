@@ -14,6 +14,20 @@ class FControlFlow;
 class AKKCharacter;
 class UGameplayEffect;
 
+USTRUCT()
+struct FAttackComponents
+{
+	GENERATED_BODY();
+	
+	FAttackComponents()
+	{
+		AttackComponents.Reserve(3); //should rarely be more than 3 components
+	}
+	
+	UPROPERTY()
+	TArray<UAttackComponent*> AttackComponents;
+};
+
 UCLASS(BlueprintType)
 class KRZYWEKARTY2_API UAttackSequence : public UObject
 {
@@ -55,7 +69,7 @@ protected:
 
 private:
 	UPROPERTY(Transient)
-	TMap<EAttackStage, TArray<UAttackComponent*>> AttackPipeline;
+	TMap<EAttackStage, FAttackComponents> AttackPipeline;
 	
 	TSharedPtr<FControlFlow> AttackFlow;
 
