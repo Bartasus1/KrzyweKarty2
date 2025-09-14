@@ -55,7 +55,10 @@ void UAttackSequence::ModifyDamage(int32 InDamage, EGameplayModOp::Type Modifica
 		Damage *= InDamage;
 		break;
 	case EGameplayModOp::Division:
-		Damage /= InDamage;
+		if(InDamage != 0)
+		{
+			Damage /= InDamage;
+		}
 		break;
 	default:
 		break;
@@ -92,7 +95,7 @@ void UAttackSequence::InitDamage()
 
 void UAttackSequence::ExecuteDamage()
 {
-	const float Level = AttackContext.AbilityIndex.Get(0);
+	const float Level = GetAbilityIndex();
 	const UGameplayEffect* AttackGameplayEffect = UKrzyweKartySettings::GetAttackGameplayEffect();
 	UAbilitySystemComponent* AbilitySystemComponent = GetAttacker()->GetAbilitySystemComponent();
 
@@ -119,12 +122,6 @@ UAttackSequence* UAttackSequence::BeginDefaultAttackSequence(UObject* WorldConte
 }
 
 UAttackSequence* UAttackSequence::BeginAbilityAttackSequence(UObject* WorldContextObject, const AKKCharacter* Attacker, const AKKCharacter* Victim, int32 InAbilityIndex, int32 InDamage)
-{
-	check(0);
-	return nullptr;
-}
-
-UAttackSequence* UAttackSequence::BeginPreviewAttackSequence(UObject* WorldContextObject, const AKKCharacter* Attacker, const AKKCharacter* Victim, EAttackType AttackType, int32 InAbilityIndex, int32 InDamage)
 {
 	check(0);
 	return nullptr;
@@ -167,45 +164,4 @@ DEFINE_FUNCTION(UAttackSequence::execBeginAbilityAttackSequence)
 
 	*static_cast<UAttackSequence**>(RESULT_PARAM) = AttackSequence;
 	P_NATIVE_END;
-}
-
-DEFINE_FUNCTION(UAttackSequence::execBeginPreviewAttackSequence)
-{
-	P_GET_OBJECT(UObject, WorldContextObject);
-	P_GET_OBJECT(AKKCharacter, Attacker);
-	P_GET_OBJECT(AKKCharacter, Victim);
-	PARAM_PASSED_BY_VAL(AttackType, FEnumProperty, EAttackType);
-	PARAM_PASSED_BY_VAL(InAbilityIndex, FIntProperty, int32);
-	PARAM_PASSED_BY_VAL(InDamage, FIntProperty, int32);
-	P_FINISH;
-	
-	P_NATIVE_BEGIN;
-	
-	// Create copies of the attacker and victim to avoid modifying the original objects
-	AKKCharacter* AttackerCopy = CreateCharacterCopy(Attacker, WorldContextObject);
-	AKKCharacter* VictimCopy = CreateCharacterCopy(Victim, WorldContextObject);
-
-	
-	const FAttackContext AttackContext = FAttackContext(AttackerCopy, VictimCopy, AttackType, InAbilityIndex);
-	
-	UAttackSequence* AttackSequence = NewObject<UAttackSequence>(WorldContextObject);
-	AttackSequence->AttackContext = AttackContext;
-	AttackSequence->Damage = InDamage;
-	AttackSequence->BeginAttack();
-
-	*static_cast<UAttackSequence**>(RESULT_PARAM) = AttackSequence;
-	P_NATIVE_END;
-}
-
-AKKCharacter* UAttackSequence::CreateCharacterCopy(const AKKCharacter* Character, UObject* WorldContextObject)
-{
-	AKKCharacter* CharacterCopy = DuplicateObject(Character, WorldContextObject);
-	UKKAttributeSet* AttributeSetCopy = DuplicateObject(Character->AttributeSet, WorldContextObject);
-	
-	CharacterCopy->AbilitySystemComponent->RegisterComponent();
-	CharacterCopy->AttributeSet = AttributeSetCopy;
-	CharacterCopy->AbilitySystemComponent->AddSpawnedAttribute(AttributeSetCopy);
-	CharacterCopy->InitializeAbilitySystemComponent();
-
-	return CharacterCopy;
 }

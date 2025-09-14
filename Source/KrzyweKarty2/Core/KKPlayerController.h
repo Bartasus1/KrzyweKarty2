@@ -29,7 +29,7 @@ public:
 	AKKPlayerController();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated)
-	int32 PlayerID = -1; //255
+	int32 PlayerID = -1;
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AFraction> FractionToSpawn;

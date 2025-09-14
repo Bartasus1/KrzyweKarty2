@@ -236,4 +236,9 @@ public:
 	{
 		AbilitySystemComponent->ApplyModToAttribute(UKKAttributeSet::GetDefenceAttribute(), Modification, Magnitude);
 	}
+
+	UCharacterWidget* GetCharacterWidget()
+	{
+		return CharacterWidget;
+	}
 };

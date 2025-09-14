@@ -23,7 +23,7 @@ void AKKPlayerState::BeginPlay()
 void AKKPlayerState::SetPlayerFraction(const FFractionCharacters& InFractionCharacters)
 {
 	PlayerFractionCharacters = InFractionCharacters;
-	AliveCharactersCount = PlayerFractionCharacters.Num() - 1;
+	AliveCharactersCount = PlayerFractionCharacters.Characters.Num();
 
 	for (AKKCharacter* Character : PlayerFractionCharacters.Characters)
 	{

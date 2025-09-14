@@ -26,8 +26,10 @@ public:
 
 	virtual void Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const override;
 
-	static int32 CalculateDamage(int32 InDamage, int32 VictimDefence);
-
 private:
 	static FAttackAttributeCapture CaptureAttributes(const FGameplayEffectCustomExecutionParameters& ExecutionParams);
+
+public:
+
+	static int32 CalculateDamage(int32 InDamage, int32 VictimDefence);
 };
